@@ -33,8 +33,8 @@ Fuera de alcance: cobros con tarjetas reales.
 
 ## Documentación del proyecto
 
-- `spec.md` — contratos entre servicios: modelos de datos, endpoints y reglas de negocio (*en preparación*).
-- `agent.md` — reglas técnicas y de estilo de cada microservicio (*en preparación*).
+- `spec.md` — contratos entre servicios: modelos de datos, endpoints y reglas de negocio.
+- `agent.md` — reglas técnicas y de estilo de cada microservicio.
 
 ## Cómo clonar el proyecto
 
