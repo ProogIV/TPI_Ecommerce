@@ -1,0 +1,12 @@
+[submodule "inventario"]
+	path = inventario
+	url = https://github.com/ProogIV/TPI_BackendA_Inventario.git
+[submodule "pedidos"]
+	path = pedidos
+	url = https://github.com/ProogIV/TPI_BackendB_Pedidos.git
+[submodule "pagos"]
+	path = pagos
+	url = https://github.com/ProogIV/TPI_BackendC_Pagos.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/ProogIV/TPI_Frontend.git
