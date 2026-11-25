@@ -124,6 +124,18 @@ git push
 |---|---|
 | Un repositorio por microservicio, más este orquestador con **submódulos de Git** (la planificación propone un monorepo; los submódulos no se vieron en la guía de Git de la cátedra) | Cada microservicio es independiente y tiene su propio ciclo de versiones, como en una arquitectura de microservicios real: un equipo puede trabajar y versionar su servicio sin afectar a los demás. El orquestador fija qué versión de cada servicio compone el sistema y permite levantar todo con un único comando, que es el objetivo del monorepo propuesto. |
 
+## Contribuciones
+
+El trabajo se organizó con una rama por funcionalidad y Pull Requests revisados por otro integrante antes de integrarse (ver la pestaña *Pull requests* de cada repositorio).
+
+| Integrante | Responsabilidades principales |
+|---|---|
+| Joaquín Micheloud | Servicio de Pedidos (Django REST + PostgreSQL): modelo, flujo de compra con compensación de stock, JWT con roles y documentación OpenAPI. Notificaciones en tiempo real con Django Channels y Redis. Frontend de demostración. Orquestador, `spec.md` y `agent.md`. |
+| Joaquín Gabriel Quijano | Servicio de Pagos (FastAPI). Dockerfiles, `docker-compose.yml` e integración continua con GitHub Actions en los cinco repositorios. |
+| Gustavo Alarcón | Servicio de Inventario (Express + MongoDB): CRUD de proveedores y productos, descuento atómico de stock y seguridad (verificación de JWT, roles y clave entre servicios). Producción del servicio de Pedidos (WhiteNoise, seed). |
+
+> El PR #6 de Inventario se integró con *squash*: el historial completo de Gustavo se conserva en la rama `feature/backend-node`.
+
 ## Hoja de ruta
 
 | Entrega | Contenido | Estado |
