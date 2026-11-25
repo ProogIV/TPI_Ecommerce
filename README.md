@@ -131,5 +131,5 @@ git push
 | TP 0 | Repositorios, entornos, `spec.md` y `agent.md` | ✅ |
 | TP 1 | CRUD de proveedores y productos; órdenes; integración de stock | ✅ |
 | TP 2 | JWT, roles (Administrador / Cliente), validación y rate limiting | ✅ |
-| TP 3 | Microservicio de Pagos y notificaciones en tiempo real (WebSockets) | Pendiente |
+| TP 3 | Microservicio de Pagos y notificaciones en tiempo real (WebSockets con Django Channels y Redis) | ✅ |
 | TP 4 y 5 | Docker Compose, CI con GitHub Actions, OpenAPI, GraphQL y defensa | En curso |
