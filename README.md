@@ -54,15 +54,48 @@ git submodule update --init --recursive
 
 ## Cómo levantar el proyecto con Docker Compose
 
+Requisito: Docker Desktop (o Docker Engine con el plugin Compose) en ejecución.
+
 ```bash
-cp .env.example .env       # generar SECRET_KEY y JWT_SIGNING_KEY propios antes de usarlos
+git clone --recurse-submodules https://github.com/ProogIV/TPI_Ecommerce.git
+cd TPI_Ecommerce
+cp .env.example .env          # Windows (PowerShell): Copy-Item .env.example .env
+```
+
+Completar en `.env` las tres claves (`SECRET_KEY`, `JWT_SIGNING_KEY` y `SERVICE_TOKEN`) con valores
+generados con `python -c "import secrets; print(secrets.token_urlsafe(50))"`, y levantar todo:
+
+```bash
 docker compose up --build
 ```
 
-El archivo `.env` de la raíz concentra las claves y credenciales que comparten los servicios; nunca se
-sube al repositorio. Pedidos espera a PostgreSQL, aplica las migraciones y luego levanta Daphne en
-`http://localhost:8000`. Inventario responde en `http://localhost:3000`, Pagos en
-`http://localhost:8001` y el frontend en `http://localhost:8080`.
+Al arrancar, sin intervención manual:
+
+- Pedidos espera a PostgreSQL, aplica las migraciones, **crea los usuarios de prueba** y levanta Daphne (ASGI).
+- Inventario se conecta a MongoDB y, si la base está vacía, **carga un proveedor y 4 productos**.
+
+| Servicio | URL |
+|---|---|
+| Frontend | http://localhost:8080 |
+| Inventario | http://localhost:3000/api/productos |
+| Pedidos | http://localhost:8000/api/orders/ (admin: http://localhost:8000/admin/) |
+| Pagos | http://localhost:8001/docs |
+
+### Credenciales de prueba
+
+| Rol | Usuario | Contraseña | Puede |
+|---|---|---|---|
+| Administrador | `admin` | `Admin12345!` | Administrar productos y proveedores; ver todos los pedidos |
+| Comprador | `cliente` | `Cliente12345!` | Comprar y ver sus propios pedidos |
+
+### Demostración del circuito de compra
+
+1. Entrar a http://localhost:8080 e ingresar con `cliente` / `Cliente12345!`.
+2. Comprar 2 unidades de la **Placa de Video**: el pedido queda **PAGADO** y el stock baja de 15 a 13.
+3. Comprar 2 unidades del **Servidor Rack** ($12.000.000, supera el límite de Pagos): el pedido queda
+   **FALLIDO** y el stock vuelve a su valor original (compensación).
+
+Para detener todo: `docker compose down`. Para borrar también los datos: `docker compose down -v`.
 
 ## Cómo trabajar con los submódulos
 
@@ -95,8 +128,8 @@ git push
 
 | Entrega | Contenido | Estado |
 |---|---|---|
-| TP 0 | Repositorios, entornos, `spec.md` y `agent.md` | En curso |
-| TP 1 | CRUD de proveedores y productos; órdenes; integración de stock | En curso |
-| TP 2 | JWT, roles (Administrador / Cliente), validación y rate limiting | Pendiente |
+| TP 0 | Repositorios, entornos, `spec.md` y `agent.md` | ✅ |
+| TP 1 | CRUD de proveedores y productos; órdenes; integración de stock | ✅ |
+| TP 2 | JWT, roles (Administrador / Cliente), validación y rate limiting | ✅ |
 | TP 3 | Microservicio de Pagos y notificaciones en tiempo real (WebSockets) | Pendiente |
-| TP 4 y 5 | Docker Compose, CI con GitHub Actions, OpenAPI, GraphQL y defensa | Pendiente |
+| TP 4 y 5 | Docker Compose, CI con GitHub Actions, OpenAPI, GraphQL y defensa | En curso |
