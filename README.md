@@ -52,8 +52,17 @@ Si ya se clonó sin esa opción, las carpetas de los servicios quedan vacías. S
 git submodule update --init --recursive
 ```
 
-La puesta en marcha con Docker Compose (`docker compose up --build`) se documentará en esta sección
-cuando esté lista.
+## Cómo levantar el proyecto con Docker Compose
+
+```bash
+cp .env.example .env       # generar SECRET_KEY y JWT_SIGNING_KEY propios antes de usarlos
+docker compose up --build
+```
+
+El archivo `.env` de la raíz concentra las claves y credenciales que comparten los servicios; nunca se
+sube al repositorio. Pedidos espera a PostgreSQL, aplica las migraciones y luego levanta Daphne en
+`http://localhost:8000`. Inventario responde en `http://localhost:3000`, Pagos en
+`http://localhost:8001` y el frontend en `http://localhost:8080`.
 
 ## Cómo trabajar con los submódulos
 

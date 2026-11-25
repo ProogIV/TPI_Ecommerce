@@ -1,0 +1,119 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: tpi_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-inventario_db}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - tpi_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: tpi_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pedidos_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tpi_network
+
+  inventario:
+    build:
+      context: ./inventario
+      dockerfile: Dockerfile
+    container_name: tpi_inventario
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_URI: mongodb://mongo:27017/${MONGO_DB:-inventario_db}
+      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?Definí JWT_SIGNING_KEY en el .env de la raíz}
+      SERVICE_TOKEN: ${SERVICE_TOKEN:-}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8080}
+      PEDIDOS_API_URL: http://pedidos:8000/api
+    depends_on:
+      - mongo
+    networks:
+      - tpi_network
+
+  pedidos:
+    build:
+      context: ./pedidos
+      dockerfile: Dockerfile
+    container_name: tpi_pedidos
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "False"
+      ALLOWED_HOSTS: "*"
+      SECRET_KEY: ${SECRET_KEY:?Definí SECRET_KEY en el .env de la raíz}
+      DB_ENGINE: postgresql
+      DB_NAME: ${POSTGRES_DB:-pedidos_db}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY:?Definí JWT_SIGNING_KEY en el .env de la raíz}
+      INVENTARIO_API_URL: http://inventario:3000/api
+      PAGOS_API_URL: http://pagos:8001/api
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8080}
+    # Espera a PostgreSQL, aplica migraciones y levanta el servidor ASGI.
+    command: >
+      sh -c "until python -c \"import socket; socket.create_connection(('postgres', 5432), 2)\" 2>/dev/null;
+      do echo 'Esperando a PostgreSQL...'; sleep 1; done;
+      python manage.py migrate --noinput &&
+      daphne -b 0.0.0.0 -p 8000 config.asgi:application"
+    depends_on:
+      - postgres
+      - inventario
+      - pagos
+    networks:
+      - tpi_network
+
+  pagos:
+    build:
+      context: ./pagos
+      dockerfile: Dockerfile
+    container_name: tpi_pagos
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      PORT: 8001
+      LIMITE_APROBACION: 10000000
+    networks:
+      - tpi_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tpi_frontend
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - inventario
+      - pedidos
+    networks:
+      - tpi_network
+
+networks:
+  tpi_network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  postgres_data:
